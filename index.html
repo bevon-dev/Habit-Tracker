@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habit Tracker — Health & Fitness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark">HT</div>
+        <span class="logo-text">Habitry</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="today">
+          <span class="nav-icon">◈</span>
+          <span>Today</span>
+        </button>
+        <button class="nav-item" data-view="week">
+          <span class="nav-icon">◫</span>
+          <span>Week</span>
+        </button>
+        <button class="nav-item" data-view="month">
+          <span class="nav-icon">◻</span>
+          <span>Month</span>
+        </button>
+        <button class="nav-item" data-view="charts">
+          <span class="nav-icon">◬</span>
+          <span>Charts</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="add-habit-btn" id="openModalBtn">
+          <span>+</span> New Habit
+        </button>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="sidebar-btn" id="themeToggleBtn" title="Toggle theme">🌙</button>
+          <button class="sidebar-btn" id="templatesBtn" title="Quick templates">⚡</button>
+          <button class="sidebar-btn" id="remindersViewBtn" title="Manage reminders">⏰</button>
+          <button class="sidebar-btn" id="exportBtn" title="Export habits">📥</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div class="header-date" id="headerDate"></div>
+        <div class="header-stats" id="headerStats"></div>
+      </header>
+
+      <div class="view-container">
+        <!-- TODAY VIEW -->
+        <section class="view active" id="view-today">
+          <div class="view-title">Today's Habits</div>
+          <div class="habits-grid" id="today-habits"></div>
+          <div class="empty-state" id="today-empty" style="display:none">
+            <div class="empty-icon">◈</div>
+            <p>No habits yet. Add your first one!</p>
+            <button onclick="openModal()">+ Add Habit</button>
+          </div>
+        </section>
+
+        <!-- WEEK VIEW -->
+        <section class="view" id="view-week">
+          <div class="view-title">This Week</div>
+          <div class="week-grid-wrap" id="week-content"></div>
+        </section>
+
+        <!-- MONTH VIEW -->
+        <section class="view" id="view-month">
+          <div class="view-title">This Month</div>
+          <div class="month-content" id="month-content"></div>
+        </section>
+
+        <!-- CHARTS VIEW -->
+        <section class="view" id="view-charts">
+          <div class="view-title">Progress Charts</div>
+          <div class="charts-content" id="charts-content"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">New Habit</h2>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label>Habit name</label>
+        <input type="text" id="habitName" placeholder="e.g. Morning run" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="habitCat">
+            <option value="exercise">🏃 Exercise</option>
+            <option value="nutrition">🥗 Nutrition</option>
+            <option value="sleep">😴 Sleep</option>
+            <option value="hydration">💧 Hydration</option>
+            <option value="mindfulness">🧘 Mindfulness</option>
+            <option value="other">✦ Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Frequency</label>
+          <select id="habitFreq">
+            <option value="daily">Daily</option>
+            <option value="3x/week">3× per week</option>
+            <option value="weekdays">Weekdays</option>
+            <option value="weekends">Weekends</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Goal / Note <span class="optional">(optional)</span></label>
+        <input type="text" id="habitNote" placeholder="e.g. At least 30 minutes" />
+      </div>
+
+      <div class="form-group">
+        <label>⏰ Reminder Time <span class="optional">(optional)</span></label>
+        <input type="time" id="habitReminder" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveHabit()">Save Habit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATES MODAL -->
+  <div class="modal-overlay" id="templatesOverlay">
+    <div class="modal" id="templatesModal">
+      <div class="modal-header">
+        <h2>Quick Templates</h2>
+        <button class="modal-close" onclick="closeTemplates()">✕</button>
+      </div>
+      <div id="templates-list" style="display:grid;grid-template-columns:1fr;gap:8px"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeTemplates()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMINDERS MODAL -->
+  <div class="modal-overlay" id="remindersOverlay">
+    <div class="modal" id="remindersModal">
+      <div class="modal-header">
+        <h2>Manage Reminders</h2>
+        <button class="modal-close" onclick="closeReminders()">✕</button>
+      </div>
+      <div id="reminders-list" style="display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeReminders()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
